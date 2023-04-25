@@ -1,27 +1,24 @@
-//#1
+
 let client = AgoraRTC.createClient({mode:'rtc', codec:"vp8"})
 
-//#2
+
 let config = {
-    appid:null,
-    token:null,
-    uid:null,
-    channel:null,
+  appid: '44b89aa8789d437198df21532ed86ecb',
+  token: '007eJxTYJi5/low5zSF+3MPW52ZXOM9a+mKnZN6rn/OnXpo77SFyyO9FRhMTJIsLBMTLcwtLFNMjM0NLS1S0owMTY2NUlMszFKTk0r/uaU0BDIyLD02j5WRAQJBfBaGktTiEgYGADBJIts=',
+  uid: null,
+  channel: 'test'
 }
 
-//#3 - Setting tracks for when user joins
 let localTracks = {
     audioTrack:null,
     videoTrack:null
 }
 
-//#4 - Want to hold state for users audio and video so user can mute and hide
 let localTrackState = {
     audioTrackMuted:false,
     videoTrackMuted:false
 }
 
-//#5 - Set remote tracks to store other users
 let remoteTracks = {}
 
 
@@ -33,8 +30,7 @@ document.getElementById('join-btn').addEventListener('click', async () => {
 })
 
 document.getElementById('mic-btn').addEventListener('click', async () => {
-    //Check if what the state of muted currently is
-    //Disable button
+   
     if(!localTrackState.audioTrackMuted){
         //Mute your audio
         await localTracks.audioTrack.setMuted(true);
@@ -52,8 +48,7 @@ document.getElementById('mic-btn').addEventListener('click', async () => {
 
 
 document.getElementById('camera-btn').addEventListener('click', async () => {
-    //Check if what the state of muted currently is
-    //Disable button
+   
     if(!localTrackState.videoTrackMuted){
         //Mute your audio
         await localTracks.videoTrack.setMuted(true);
@@ -71,8 +66,7 @@ document.getElementById('camera-btn').addEventListener('click', async () => {
 
 
 document.getElementById('leave-btn').addEventListener('click', async () => {
-    //Loop threw local tracks and stop them so unpublish event gets triggered, then set to undefined
-    //Hide footer
+   
     for (trackName in localTracks){
         let track = localTracks[trackName]
         if(track){
@@ -117,7 +111,6 @@ let joinStreams = async () => {
         }
     });
 
-    //#6 - Set and get back tracks for local user
     [config.uid, localTracks.audioTrack, localTracks.videoTrack] = await  Promise.all([
         client.join(config.appid, config.channel, config.token ||null, config.uid ||null),
         AgoraRTC.createMicrophoneAudioTrack(),
@@ -125,20 +118,16 @@ let joinStreams = async () => {
 
     ])
     
-    //#7 - Create player and add it to player list
     let player = `<div class="video-containers" id="video-wrapper-${config.uid}">
                         <p class="user-uid"><img class="volume-icon" id="volume-${config.uid}" src="./assets/volume-on.svg" /> ${config.uid}</p>
                         <div class="video-player player" id="stream-${config.uid}"></div>
                   </div>`
 
     document.getElementById('user-streams').insertAdjacentHTML('beforeend', player);
-    //#8 - Player user stream in div
     localTracks.videoTrack.play(`stream-${config.uid}`)
     
 
-    //#9 Add user to user list of names/ids
 
-    //#10 - Publish my local video tracks to entire channel so everyone can see it
     await client.publish([localTracks.audioTrack, localTracks.videoTrack])
 
 }
@@ -147,10 +136,8 @@ let joinStreams = async () => {
 let handleUserJoined = async (user, mediaType) => {
     console.log('Handle user joined')
 
-    //#11 - Add user to list of remote users
     remoteTracks[user.uid] = user
 
-    //#12 Subscribe ro remote users
     await client.subscribe(user, mediaType)
    
     
